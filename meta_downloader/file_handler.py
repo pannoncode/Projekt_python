@@ -34,10 +34,27 @@ class FileHandler:
         if not os.path.exists(self.posters):
             os.mkdir(self.posters)
 
+    def write_image(self, download_path, file_name):
+        from urllib.request import urlopen
+
+        image = urlopen(download_path).read()
+
+        with open(file_name, "wb") as poster:
+            poster.write(image)
+
 
 if __name__ == '__main__':
+    from downloader_service import MetaDataLoader
+
     f_path = r"/Users/tothgyorgy/Desktop/Python/Projekt_python/movies"
     test = FileHandler()
 
+    meta = MetaDataLoader()
+
     movies = test.get_files_path_from_folder(f_path)
-    # test.write_json(result_path, 'test.json', {'kulcs': 'ertek'})
+    title = movies[0]
+
+    data = meta.download_metadata(title)
+    download_path = meta.poster_path + data['poster_path']
+    test.write_image(download_path, f"{test.posters}/{title}.jpg")
+    test.write_json(f"{test.meta_data}/{title}.json", data)
